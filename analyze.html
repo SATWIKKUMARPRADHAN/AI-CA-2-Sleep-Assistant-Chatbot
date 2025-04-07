@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SleepWise AI - Analysis</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        @keyframes float {
+            0% { transform: translateY(0); }
+            100% { transform: translateY(-20px); }
+        }
+        .floating-sleep {
+            position: absolute;
+            opacity: 0.6;
+            animation: float 6s infinite alternate ease-in-out;
+        }
+    </style>
+</head>
+<body class="font-sans bg-[#f4f8fb] text-[#333] leading-relaxed overflow-x-hidden transition-colors duration-300 dark:bg-[#1a1a1a] dark:text-[#eee]">
+
+    <nav class="bg-white p-5 md:px-10 shadow-md flex justify-between items-center fixed top-0 left-0 w-full z-[100] transition-colors duration-300 dark:bg-[#222] dark:shadow-[0_2px_4px_rgba(255,255,255,0.1)]">
+        <div class="text-2xl font-bold text-[#6c63ff] dark:text-[#a78bfa] transition-colors duration-300">SleepWise AI</div>
+        <ul class="flex items-center space-x-4 md:space-x-8 flex-col md:flex-row md:mt-0 mt-4 w-full md:w-auto text-center">
+            <li class="md:my-0 my-2"><a href="#features" class="text-[#555] font-medium hover:text-[#6c63ff] dark:text-[#bbb] dark:hover:text-[#a78bfa] transition-colors duration-300">Features</a></li>
+            <li class="md:my-0 my-2"><a href="#how-it-works" class="text-[#555] font-medium hover:text-[#6c63ff] dark:text-[#bbb] dark:hover:text-[#a78bfa] transition-colors duration-300">How it Works</a></li>
+            <li class="md:my-0 my-2"><a href="#testimonials" class="text-[#555] font-medium hover:text-[#6c63ff] dark:text-[#bbb] dark:hover:text-[#a78bfa] transition-colors duration-300">Testimonials</a></li>
+            <li class="md:my-0 my-2"><a href="#" class="text-[#555] font-medium hover:text-[#6c63ff] dark:text-[#bbb] dark:hover:text-[#a78bfa] transition-colors duration-300">Analysis</a></li>
+            <li class="md:my-0 my-2"><a href="#" class="bg-[#6c63ff] text-white px-6 py-3 rounded-full font-bold shadow-lg hover:bg-[#5e56d4] hover:-translate-y-0.5 transition-all duration-300">Login</a></li>
+        </ul>
+        <span class="dark-mode-toggle text-xl cursor-pointer text-[#555] hover:text-[#6c63ff] dark:text-[#bbb] dark:hover:text-[#a78bfa] transition-colors duration-300 ml-4 md:ml-8">🌙</span>
+    </nav>
+
+    <section class="pt-36 pb-24 px-5 md:px-10 bg-gradient-to-br from-[#e0f7fa] to-[#f3e5f5] dark:from-[#2c2c2c] dark:to-[#3a3a3a] transition-colors duration-300">
+        <div class="max-w-4xl mx-auto text-center animate__animated animate__fadeInUp animate__delay-0.5s">
+            <h1 class="text-4xl md:text-5xl text-[#333] mb-5 dark:text-[#eee] transition-colors duration-300">Sleep Analysis</h1>
+            <p class="text-lg md:text-xl text-[#555] mb-8 dark:text-[#bbb] transition-colors duration-300">Track your sleep patterns and get insights into your sleep quality.</p>
+        </div>
+
+        <div class="max-w-2xl mx-auto bg-white p-6 rounded-lg shadow-md dark:bg-[#333] dark:text-[#bbb] transition-colors duration-300">
+            <form id="sleepForm" class="space-y-4">
+                <div>
+                    <label for="sleepTime" class="block text-[#333] dark:text-[#eee] mb-2">Sleep Time:</label>
+                    <input type="time" id="sleepTime" class="w-full p-2 border border-[#ddd] rounded-md dark:border-[#777] dark:bg-[#222] dark:text-[#eee] transition-colors duration-300">
+                </div>
+                <div>
+                    <label for="wakeTime" class="block text-[#333] dark:text-[#eee] mb-2">Wake Up Time:</label>
+                    <input type="time" id="wakeTime" class="w-full p-2 border border-[#ddd] rounded-md dark:border-[#777] dark:bg-[#222] dark:text-[#eee] transition-colors duration-300">
+                </div>
+                <button type="submit" class="bg-[#6c63ff] text-white px-6 py-3 rounded-full font-bold shadow-lg hover:bg-[#5e56d4] transition-all duration-300 w-full">Analyze Sleep</button>
+            </form>
+        </div>
+
+        <div id="results" class="max-w-4xl mx-auto mt-10 hidden">
+            <canvas id="sleepChart" class="mb-8"></canvas>
+            <div id="sleepQuality" class="text-center text-xl font-medium text-[#333] dark:text-[#eee]"></div>
+            <div id="chatSuggestion" class="text-center mt-4 hidden">
+                <p class="text-[#555] dark:text-[#bbb] mb-4">Your sleep quality could use some improvement. Chat with our Sleep Assistant for personalized tips!</p>
+                <a href="chatbot.html" class="bg-[#6c63ff] text-white px-6 py-3 rounded-full font-bold shadow-lg hover:bg-[#5e56d4] transition-all duration-300">Chat Now</a>
+            </div>
+        </div>
+    </section>
+
+    <footer class="bg-[#333] text-white text-center py-8 text-sm dark:bg-[#222] dark:text-[#ccc] transition-colors duration-300">
+        <p>&copy; 2025 SleepWise AI. All rights reserved.</p>
+    </footer>
+
+    <script>
+        const body = document.body;
+        const darkModeToggle = document.querySelector('.dark-mode-toggle');
+        const sleepForm = document.getElementById('sleepForm');
+        const results = document.getElementById('results');
+        const sleepQualityDiv = document.getElementById('sleepQuality');
+        const chatSuggestion = document.getElementById('chatSuggestion');
+        let sleepChart;
+
+        // Load saved theme
+        const savedTheme = localStorage.getItem('theme') || 'light';
+        body.setAttribute('data-theme', savedTheme);
+        updateDarkModeIcon(savedTheme);
+
+        darkModeToggle.addEventListener('click', () => {
+            const currentTheme = body.getAttribute('data-theme');
+            const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+            body.setAttribute('data-theme', newTheme);
+            localStorage.setItem('theme', newTheme);
+            updateDarkModeIcon(newTheme);
+            updateChartColors(newTheme);
+        });
+
+        function updateDarkModeIcon(theme) {
+            darkModeToggle.textContent = theme === 'dark' ? '☀️' : '🌙';
+        }
+
+        // Load or initialize sleep data
+        let sleepData = JSON.parse(localStorage.getItem('sleepData')) || [];
+        if (sleepData.length > 30) sleepData = sleepData.slice(-30);
+
+        sleepForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const sleepTime = document.getElementById('sleepTime').value;
+            const wakeTime = document.getElementById('wakeTime').value;
+
+            if (!sleepTime || !wakeTime) return;
+
+            const sleepDuration = calculateSleepDuration(sleepTime, wakeTime);
+            const today = new Date().toISOString().split('T')[0];
+            sleepData.push({ date: today, sleepTime, wakeTime, duration: sleepDuration });
+            if (sleepData.length > 30) sleepData.shift();
+            localStorage.setItem('sleepData', JSON.stringify(sleepData));
+
+            analyzeSleep();
+            results.classList.remove('hidden');
+        });
+
+        function calculateSleepDuration(sleepTime, wakeTime) {
+            const [sleepHours, sleepMinutes] = sleepTime.split(':').map(Number);
+            const [wakeHours, wakeMinutes] = wakeTime.split(':').map(Number);
+            let duration = (wakeHours * 60 + wakeMinutes) - (sleepHours * 60 + sleepMinutes);
+            if (duration < 0) duration += 24 * 60; // Handle overnight sleep
+            return duration / 60; // Convert to hours
+        }
+
+        function analyzeSleep() {
+            const durations = sleepData.map(d => d.duration);
+            const avgDuration = durations.reduce((a, b) => a + b, 0) / durations.length;
+            const consistency = calculateConsistency(durations);
+
+            let quality;
+            if (avgDuration >= 7 && avgDuration <= 9 && consistency > 0.8) quality = 'Excellent';
+            else if (avgDuration >= 6 && avgDuration <= 10 && consistency > 0.6) quality = 'Good';
+            else if (avgDuration >= 5 && consistency > 0.4) quality = 'Fair';
+            else quality = 'Poor';
+
+            sleepQualityDiv.textContent = `Sleep Quality: ${quality}`;
+            chatSuggestion.classList.toggle('hidden', quality !== 'Poor');
+
+            updateChart(durations);
+        }
+
+        function calculateConsistency(durations) {
+            if (durations.length < 2) return 1;
+            const mean = durations.reduce((a, b) => a + b) / durations.length;
+            const variance = durations.reduce((a, b) => a + Math.pow(b - mean, 2), 0) / durations.length;
+            const stdDev = Math.sqrt(variance);
+            return 1 - (stdDev / mean); // Higher value = more consistent
+        }
+
+        function updateChart(durations) {
+            const labels = sleepData.map(d => d.date);
+            const theme = body.getAttribute('data-theme');
+            const backgroundColor = theme === 'dark' ? '#a78bfa' : '#6c63ff';
+            const borderColor = theme === 'dark' ? '#d8b4fe' : '#5e56d4';
+
+            if (sleepChart) sleepChart.destroy();
+            sleepChart = new Chart(document.getElementById('sleepChart'), {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Sleep Duration (hours)',
+                        data: durations,
+                        backgroundColor: backgroundColor,
+                        borderColor: borderColor,
+                        borderWidth: 2,
+                        fill: false,
+                    }]
+                },
+                options: {
+                    scales: {
+                        y: { beginAtZero: true, max: 12, title: { display: true, text: 'Hours' } },
+                        x: { title: { display: true, text: 'Date' } }
+                    },
+                    plugins: { legend: { display: true } }
+                }
+            });
+        }
+
+        function updateChartColors(theme) {
+            if (sleepChart) {
+                sleepChart.data.datasets[0].backgroundColor = theme === 'dark' ? '#a78bfa' : '#6c63ff';
+                sleepChart.data.datasets[0].borderColor = theme === 'dark' ? '#d8b4fe' : '#5e56d4';
+                sleepChart.update();
+            }
+        }
+
+        // Initial load
+        if (sleepData.length > 0) {
+            analyzeSleep();
+            results.classList.remove('hidden');
+        }
+    </script>
+</body>
+</html>
